@@ -65,7 +65,20 @@ def run(ip, port, new_key, sleep_time):
         print('server shutdown')
 
 
+def print_banner():
+    banner = '''                                                   
+      _    ___     ___             _     
+   _ | |  / __|   / __|   __ _    | |_   
+  | || |  \__ \  | (__   / _` |   |  _|  
+  _\__/   |___/   \___|  \__,_|   _\__|  
+_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| 
+"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-' 
+    '''
+    print(banner)
+
 def main():
+    print_banner()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', required=True,
                         help='host listening ip ,default is 0.0.0.0')

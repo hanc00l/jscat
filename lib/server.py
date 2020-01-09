@@ -30,6 +30,7 @@ class Server(threading.Thread):
             ('0.0.0.0', self.port), self.handler_class)
         self.http.timeout = None
         self.http.daemon_threads = True
+        self.http.server_ip = self.host
         self.http.shell = self.shell
         self.http.session = self.session
         self.http.rc4_key = self.rc4_key

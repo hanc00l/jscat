@@ -52,7 +52,9 @@ def run(ip, port, new_key, sleep_time):
     shell = Shell(session)
     httpd = Server(ip, port, JSCatServer, session, shell, rc4_key, sleep_time)
     httpd.start()
-    print('[*]server running in {}:{}...'.format(BOLD(ip), BOLD(port)))
+    print('[*]server running in  {}:{}...'.format(BOLD('0.0.0.0'), BOLD(port)))
+    print('[*]host connect ip is {}:{}...'.format(BOLD(ip), BOLD(port)))
+
     print_online_cmd(ip, port)
     # 控制台命令输入
     try:
@@ -81,7 +83,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', required=True,
-                        help='host listening ip ,default is 0.0.0.0')
+                        help='host foreign ip for host connect')
     parser.add_argument('-p', '--port', default=6600,
                         help='host listening port,default is 6600')
     parser.add_argument('--new_key', default=False, action="store_true",

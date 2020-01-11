@@ -36,7 +36,7 @@ class Session():
         ), 'alive_time': time.strftime('%m-%d %H:%M:%S', time.localtime()), 'client_ip': client_ip, 'user_agent': user_agent}
         self.__SESSION_ID_LOCK.release()
         # 获取并保存session基本信息
-        info_array = self.__PAYLOAD.payload_callback(response_text, 'info', '')
+        info_array = self.__PAYLOAD.job_info(response_text)
         self.SESSIONS[session_key]['info'] = {'user': info_array[0], 'host': info_array[1], 'os': info_array[2],
                                               'dc': info_array[3], 'arch': info_array[4], 'cwd': info_array[5], 'ip': info_array[6]}
 

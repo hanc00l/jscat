@@ -51,3 +51,13 @@ class Job():
             return True
         else:
             return False
+
+    '''
+    显示JOB列表
+    '''
+
+    def list_jobs(self):
+        print('{:>10}\t{:<15}{:<10}'.format('JOBID', 'JOB_TYPE', 'STATUS'))
+        for job in self.JOBS:
+            status = 'RUNNING' if job['status'] == Job.RUNNING else 'CREATED'
+            print('{:>10}\t{:<15}{:<10}'.format(job['id'], job['type'], status))

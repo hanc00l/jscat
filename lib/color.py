@@ -7,4 +7,6 @@ if 'win32' not in sys.platform:
     _RESET = "\x1b[0m"
     def BOLD(x): return '{}{}{}'.format(_BOLD, x, _RESET)
 else:
+    _BOLD = ""
+    _RESET = ""
     def BOLD(x): return x

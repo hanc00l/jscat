@@ -32,11 +32,13 @@ RC4加密的key
 
 def get_rc4_key(new_key):
     RC4_KEY_FILE = 'rc4_key.txt'
+    # 读取原来的key
     if not new_key and os.path.exists(RC4_KEY_FILE):
         with open(RC4_KEY_FILE) as f1:
             key = f1.readline().strip()
         if len(key) > 0:
             return key
+    # 生成新的key
     key = ''.join([random.choice(string.ascii_letters) for i in range(16)])
     with open(RC4_KEY_FILE, 'w') as f2:
         f2.write(key)

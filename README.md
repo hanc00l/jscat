@@ -43,7 +43,7 @@ optional arguments:
   -s SLEEP_TIME, --sleep_time SLEEP_TIME
                         set host sleep time in second,default is 5
                         
-➜  python jscat.py --host 172.16.80.1
+➜  python3 jscat.py --host 172.16.80.1
 
 [*]server cipher key: FnxYtigYdCcyrXph
 [*]server running in  0.0.0.0:6600...
@@ -117,8 +117,10 @@ Usage:
 
 
 
-### 参考
+### Credits
 
 - [Koadic](https://github.com/zerosum0x0/koadic)
 - [JSRat-Py](https://github.com/Hood3dRob1n/JSRat-Py)
-
+- [DotNetToJScript](https://github.com/tyranid/DotNetToJScript)
+- [SharpShooter](https://github.com/mdsecactivebreach/SharpShooter)
+- [awesome-rat](https://github.com/alphaSeclab/awesome-rat)

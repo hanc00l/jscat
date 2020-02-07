@@ -16,6 +16,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
 
 - 反弹上线/自动上线/无文件落地
 - 流量加密(rc4)
+- JScript代码混淆（XOR方式，下一步计划研究使用javascript-obfuscator）
 - 命令执行
 - 上传/下载
 - shellcode注入(By DotNetToJS)

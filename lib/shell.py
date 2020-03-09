@@ -4,14 +4,16 @@ import shlex
 import os
 from base64 import b64encode
 from prompt_toolkit import PromptSession
+
+from lib.session import Session
 from .color import BOLD
 from .log import Log
 
 
 class Shell():
-    def __init__(self, session):
-        self.session = session
-        self.PROMPT_MSG = '>'
+    def __init__(self, ):
+        self.session = Session() 
+        self.PROMPT_MSG = 'JSCat >'
         self.CMD_SESSION = None
         self.input = PromptSession()
 
@@ -135,7 +137,7 @@ class Shell():
     def parse_cmd(self, commands, action, args, text):
         if not self.CMD_SESSION or action == 'back' or action == 'exit' or action == 'quit':
             self.CMD_SESSION = None
-            self.PROMPT_MSG = '>'
+            self.PROMPT_MSG = 'JSCat >'
         elif action == 'help':
             self.__print_cmd_help()
         elif action == 'alias':
@@ -191,8 +193,7 @@ class Shell():
         if commands[1] == '-i':
             # 与指定SID进行交互式命令
             self.CMD_SESSION = s
-            self.PROMPT_MSG = '{}(SID:{}) >'.format(
-                s['client_ip'], s['id'])
+            self.PROMPT_MSG = 'JSCat({})(SID:{}) >'.format(s['client_ip'], s['id'])
         elif commands[1] == '-v':
             # 显示一个SID的详细情况
             self.session.show_session_detail(int(commands[2]))

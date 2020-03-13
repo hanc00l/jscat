@@ -5,23 +5,25 @@ from socketserver import ThreadingMixIn
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
+from lib.shell import Shell
+from lib.handler import JSCatServer
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     pass
 
 
 class Server(threading.Thread):
-    def __init__(self, host, port, handler, session, shell, rc4_key, sleep_time):
+    def __init__(self, cmdArguments):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.handler_class = handler
+        self.handler_class = JSCatServer 
 
-        self.host = host
-        self.port = port
-        self.shell = shell
-        self.session = session
-        self.rc4_key = rc4_key
-        self.sleep_time = sleep_time
+        self.host = cmdArguments['host']
+        self.port = cmdArguments['port']
+        self.shell = Shell() 
+        self.session = self.shell.session 
+        self.rc4_key = cmdArguments['new_key'] 
+        self.sleep_time = cmdArguments['sleep_time']
 
         self._setup_server()
 

